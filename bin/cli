@@ -1,0 +1,39 @@
+puts 'ITS HAPPENING'
+
+def get_input(type, class_name)
+  puts "Input your #{type}:"
+  input = gets.chomp
+  class_name.exists?(type.to_sym => input) ? (return input) : (raise StandardError)
+rescue StandardError
+  puts "#{type.capitalize} not found! Please re-enter:"
+  retry
+end
+
+email = get_input("email", User)
+
+user = User.find_by_email(email)
+
+puts "What do you want to do?"
+puts "0. Create shortened URL"
+puts "1. Visit shortened URL"
+
+choice = gets.chomp.to_i
+
+until choice == 0 || choice == 1
+  puts "Invalid choice! Try again:"
+  choice = gets.chomp.to_i
+end
+
+if choice == 0
+  puts "Provide long url for shortening:"
+  long_url = gets.chomp
+
+  url = ShortenedUrl.create_for_user_and_long_url!(user, long_url)
+
+  puts "Your shortened URL is #{url.short_url}"
+else
+  short_url = get_input("short_url", ShortenedUrl)
+
+  url = ShortenedUrl.find_by_short_url(short_url)
+  Launchy.open(url.long_url)
+end
